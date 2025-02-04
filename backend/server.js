@@ -4,6 +4,8 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const authRoutes = require("./routes/authRoutes");
+const Transaction = require("./models/Transaction");
+
 
 dotenv.config();
 const app = express();
@@ -46,7 +48,7 @@ const TransactionSchema = new mongoose.Schema({
   amount: { type: Number, required: true },
   date: { type: Date, default: Date.now },
 });
-const Transaction = mongoose.model("Transaction", TransactionSchema);
+
 
 // ✅ Get Transactions (Only for Logged-In User)
 app.get("/api/transactions", authenticateUser, async (req, res) => {
