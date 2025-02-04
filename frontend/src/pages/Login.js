@@ -1,36 +1,56 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import { Container, TextField, Button, Typography, Box } from "@mui/material";
 
-const Login = () => {
-  const [user, setUser] = useState({ email: "", password: "" });
+const Login = ({ setIsAuthenticated }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setUser({ ...user, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:3002/api/auth/login", user);
-      localStorage.setItem("token", res.data.token);
-      alert("Login successful!");
-      navigate("/dashboard");
+      const res = await axios.post("http://localhost:3002/api/auth/login", { email, password });
+
+      if (res.data.token) {
+        localStorage.setItem("token", res.data.token); // ✅ Save Token
+        setIsAuthenticated(true); // ✅ Update Authentication State
+        alert("Login successful!"); 
+        navigate("/dashboard"); // ✅ Redirect to Dashboard after login
+      }
     } catch (error) {
-      alert(error.response?.data?.message || "Login failed");
+      alert("Invalid Credentials. Please try again.");
+      console.error("Login Error:", error);
     }
   };
 
   return (
-    <Container maxWidth="xs">
-      <Box sx={{ mt: 8, p: 3, boxShadow: 3, borderRadius: 2 }}>
-        <Typography variant="h5" gutterBottom>Login</Typography>
-        <form onSubmit={handleSubmit}>
-          <TextField label="Email" name="email" type="email" fullWidth margin="normal" onChange={handleChange} required />
-          <TextField label="Password" name="password" type="password" fullWidth margin="normal" onChange={handleChange} required />
-          <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mt: 2 }}>Login</Button>
+    <Container maxWidth="sm">
+      <Box sx={{ mt: 5, textAlign: "center" }}>
+        <Typography variant="h4" gutterBottom>Login</Typography>
+        <form onSubmit={handleLogin}>
+          <TextField
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            fullWidth
+            required
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            fullWidth
+            required
+            sx={{ mb: 2 }}
+          />
+          <Button variant="contained" color="primary" type="submit" fullWidth>
+            Login
+          </Button>
         </form>
       </Box>
     </Container>
